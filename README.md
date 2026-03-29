@@ -8,17 +8,26 @@ An [OpenCode](https://opencode.ai) plugin to query account quota usage for multi
 
 [中文文档](./README.zh-CN.md)
 
+## Why this fork exists
+
+Forked for my own OpenCode setup:
+- adds Claude quota support via `opencode-claude-auth`
+- skips Google/Antigravity when it is not configured
+
+Anthropic quota support uses a private OAuth endpoint, so it may break if they change it.
+
 ![Check AI Quota in One Click](./assets/mystatus-banner-en.jpeg)
 
 ## Supported Platforms
 
-| Platform     | Account Type      | Data Source                                    |
-| ------------ | ----------------- | ---------------------------------------------- |
-| OpenAI       | Plus / Team / Pro | `~/.local/share/opencode/auth.json`            |
-| Zhipu AI     | Coding Plan       | `~/.local/share/opencode/auth.json`            |
-| Z.ai         | Coding Plan       | `~/.local/share/opencode/auth.json`            |
-| GitHub Copilot | Individual / Business | `~/.local/share/opencode/auth.json`            |
-| Google Cloud | Antigravity       | `~/.config/opencode/antigravity-accounts.json` |
+| Platform | Account Type | Data Source |
+| ------------ | --------------------------- | ---------------------------------------------- |
+| Anthropic | Claude Code / Pro / Max | `~/.local/share/opencode/auth.json` |
+| OpenAI | Plus / Team / Pro | `~/.local/share/opencode/auth.json` |
+| Zhipu AI | Coding Plan | `~/.local/share/opencode/auth.json` |
+| Z.ai | Coding Plan | `~/.local/share/opencode/auth.json` |
+| GitHub Copilot | Individual / Business | `~/.local/share/opencode/auth.json` |
+| Google Cloud | Antigravity (optional) | `~/.config/opencode/antigravity-accounts.json` |
 
 ## Installation
 
@@ -104,6 +113,18 @@ OpenCode will automatically use the mystatus tool to answer your question.
 ## Output Example
 
 ```
+## Anthropic Account Quota
+
+Account:        Claude
+
+5-hour limit
+██████████████████████████░░░░ 86% remaining
+Resets in: 4h 42m
+
+7-day limit
+█████████████████████████████░ 96% remaining
+Resets in: 6d 23h 42m
+
 ## OpenAI Account Quota
 
 Account:        user@example.com (team)
@@ -154,19 +175,24 @@ Claude     2d 9h      ░░░░░░░░░░░░░░░░░░░�
 - Visual progress bars showing remaining quota
 - Reset time countdown
 - Multi-language support (Chinese / English)
-- Multiple Google Cloud accounts support
+- Multiple Google Cloud accounts support when Antigravity is configured
+- Google Cloud is auto-detected and skipped when unconfigured
 - API key masking for security
 
 ## Configuration
 
 No additional configuration required. The plugin automatically reads credentials from:
 
-- **OpenAI, Zhipu AI, Z.ai & GitHub Copilot**: `~/.local/share/opencode/auth.json`
-- **Google Cloud**: `~/.config/opencode/antigravity-accounts.json`
+- **Anthropic, OpenAI, Zhipu AI, Z.ai & GitHub Copilot**: `~/.local/share/opencode/auth.json`
+- **Google Cloud (optional)**: `~/.config/opencode/antigravity-accounts.json`
+
+### Anthropic Setup
+
+To query Anthropic quota, install and authenticate [opencode-claude-auth](https://github.com/griffinmartin/opencode-claude-auth) first so Claude OAuth credentials are synced into OpenCode auth storage.
 
 ### Google Cloud Setup
 
-To query Google Cloud (Antigravity) account quota, you need to install the [opencode-antigravity-auth](https://github.com/NoeFabris/opencode-antigravity-auth) plugin first to authenticate your Google account.
+To query Google Cloud (Antigravity) account quota, install the [opencode-antigravity-auth](https://github.com/NoeFabris/opencode-antigravity-auth) plugin first to authenticate your Google account. If the Antigravity account file is missing, Google checks are skipped automatically.
 
 ## Security
 
@@ -175,10 +201,11 @@ This plugin is safe to use:
 **Local Files Accessed (read-only):**
 
 - `~/.local/share/opencode/auth.json` - OpenCode's official auth storage
-- `~/.config/opencode/antigravity-accounts.json` - Antigravity plugin's account storage
+- `~/.config/opencode/antigravity-accounts.json` - Antigravity plugin's account storage (optional)
 
-**API Endpoints (all official):**
+**API Endpoints:**
 
+- `https://api.anthropic.com/api/oauth/usage` - Anthropic OAuth quota endpoint
 - `https://chatgpt.com/backend-api/wham/usage` - OpenAI official quota API
 - `https://bigmodel.cn/api/monitor/usage/quota/limit` - Zhipu AI official quota API
 - `https://api.z.ai/api/monitor/usage/quota/limit` - Z.ai official quota API
@@ -191,6 +218,10 @@ This plugin is safe to use:
 - No data is stored, uploaded, or cached by this plugin
 - Sensitive information (API keys) is automatically masked in output
 - Source code is fully open for review
+
+### Anthropic Notes
+
+Anthropic quota support relies on OAuth credentials made available by Claude Code / `opencode-claude-auth` and a private quota endpoint. It may change if Anthropic changes their OAuth infrastructure.
 
 ## Google Cloud Models
 

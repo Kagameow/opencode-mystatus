@@ -12,13 +12,14 @@
 
 ## 支持的平台
 
-| 平台         | 账号类型          | 数据来源                                       |
-| ------------ | ----------------- | ---------------------------------------------- |
-| OpenAI       | Plus / Team / Pro | `~/.local/share/opencode/auth.json`            |
-| 智谱 AI      | Coding Plan       | `~/.local/share/opencode/auth.json`            |
-| Z.ai         | Coding Plan       | `~/.local/share/opencode/auth.json`            |
-| GitHub Copilot | Individual / Business | `~/.local/share/opencode/auth.json`            |
-| Google Cloud | Antigravity       | `~/.config/opencode/antigravity-accounts.json` |
+| 平台 | 账号类型 | 数据来源 |
+| ------------ | ---------------------------- | ---------------------------------------------- |
+| Anthropic | Claude Code / Pro / Max | `~/.local/share/opencode/auth.json` |
+| OpenAI | Plus / Team / Pro | `~/.local/share/opencode/auth.json` |
+| 智谱 AI | Coding Plan | `~/.local/share/opencode/auth.json` |
+| Z.ai | Coding Plan | `~/.local/share/opencode/auth.json` |
+| GitHub Copilot | Individual / Business | `~/.local/share/opencode/auth.json` |
+| Google Cloud | Antigravity（可选） | `~/.config/opencode/antigravity-accounts.json` |
 
 ## 安装
 
@@ -104,6 +105,18 @@ OpenCode 会自动调用 mystatus 工具来回答你的问题。
 ## 输出示例
 
 ```
+## Anthropic 账号额度
+
+Account:        Claude
+
+5小时限额
+██████████████████████████░░░░ 剩余 86%
+重置: 4小时42分钟后
+
+7天限额
+█████████████████████████████░ 剩余 96%
+重置: 6天23小时42分钟后
+
 ## OpenAI 账号额度
 
 Account:        user@example.com (team)
@@ -154,19 +167,24 @@ Claude     2d 9h      ░░░░░░░░░░░░░░░░░░░�
 - 可视化进度条显示剩余额度
 - 重置时间倒计时
 - 多语言支持（中文 / 英文）
-- 支持多个 Google Cloud 账号
+- 配置 Antigravity 后支持多个 Google Cloud 账号
+- 未配置 Antigravity 时自动跳过 Google 检查
 - API Key 脱敏显示，保护安全
 
 ## 配置
 
 无需额外配置。插件自动从以下位置读取认证信息：
 
-- **OpenAI、智谱 AI、Z.ai 和 GitHub Copilot**: `~/.local/share/opencode/auth.json`
-- **Google Cloud**: `~/.config/opencode/antigravity-accounts.json`
+- **Anthropic、OpenAI、智谱 AI、Z.ai 和 GitHub Copilot**: `~/.local/share/opencode/auth.json`
+- **Google Cloud（可选）**: `~/.config/opencode/antigravity-accounts.json`
+
+### Anthropic 设置
+
+如需查询 Anthropic 额度，请先安装并完成 [opencode-claude-auth](https://github.com/griffinmartin/opencode-claude-auth) 认证，让 Claude OAuth 凭据同步到 OpenCode 的认证存储中。
 
 ### Google Cloud 设置
 
-如需查询 Google Cloud (Antigravity) 账号额度，需要先安装 [opencode-antigravity-auth](https://github.com/NoeFabris/opencode-antigravity-auth) 插件来完成 Google 账号认证。
+如需查询 Google Cloud (Antigravity) 账号额度，需要先安装 [opencode-antigravity-auth](https://github.com/NoeFabris/opencode-antigravity-auth) 插件来完成 Google 账号认证。如果没有 Antigravity 账号文件，插件会自动跳过 Google 检查。
 
 ## 安全性
 
@@ -175,10 +193,11 @@ Claude     2d 9h      ░░░░░░░░░░░░░░░░░░░�
 **读取的本地文件（只读）：**
 
 - `~/.local/share/opencode/auth.json` - OpenCode 官方认证存储
-- `~/.config/opencode/antigravity-accounts.json` - Antigravity 插件的账号存储
+- `~/.config/opencode/antigravity-accounts.json` - Antigravity 插件的账号存储（可选）
 
-**请求的 API 接口（均为官方接口）：**
+**请求的 API 接口：**
 
+- `https://api.anthropic.com/api/oauth/usage` - Anthropic OAuth 额度接口
 - `https://chatgpt.com/backend-api/wham/usage` - OpenAI 官方额度查询接口
 - `https://bigmodel.cn/api/monitor/usage/quota/limit` - 智谱 AI 官方额度查询接口
 - `https://api.z.ai/api/monitor/usage/quota/limit` - Z.ai 官方额度查询接口
@@ -191,6 +210,10 @@ Claude     2d 9h      ░░░░░░░░░░░░░░░░░░░�
 - 插件不会保存、上传或缓存任何用户数据
 - 敏感信息（API Key）在输出时自动脱敏显示
 - 源代码完全开源，可随时审查
+
+### Anthropic 说明
+
+Anthropic 额度支持依赖 Claude Code / `opencode-claude-auth` 提供的 OAuth 凭据以及一个私有额度接口。如果 Anthropic 调整 OAuth 基础设施，这部分功能可能会失效。
 
 ## Google Cloud 模型
 
